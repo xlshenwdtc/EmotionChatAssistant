@@ -28,6 +28,5 @@ jobs:
           publish_dir: ./ # 部署当前项目的根目录
 
       # 环境变量：将 API Key 注入环境
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-Create GitHub Actions workflow for deployment
+      - name: Set OpenAI API Key
+        run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
