@@ -1,0 +1,33 @@
+name: Deploy Chat App
+
+on:
+  push:
+    branches:
+      - main  # 当推送到 main 分支时触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 第一步：检查代码
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 第二步：设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      # 第三步：部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ # 部署当前项目的根目录
+
+      # 环境变量：将 API Key 注入环境
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+Create GitHub Actions workflow for deployment
