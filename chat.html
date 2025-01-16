@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotion Chat Assistant</title>
+</head>
+<body>
+  <h1>Welcome! (欢迎)</h1>
+  <p>
+    I am your little chat assistant. Have you experienced something happy recently? Or maybe you're feeling a bit sad? Try talking to me! (你好！我是一个聊天小精灵，最近有什么开心的事情？亦或是有些难过的事情？请试着和我聊一聊吧)
+  </p>
+  <p>
+    Suggested topics (建议话题):
+    <ul>
+      <li>Work pressure (工作压力)</li>
+      <li>Intimate relationships (亲密关系)</li>
+      <li>Personal growth (个人成长)</li>
+      <li>Just chatting (随意聊聊)</li>
+    </ul>
+  </p>
+  <p>
+    P.S. My designer may review our conversations, so please don't share sensitive information like your bank account password! (P.S. 我的设计者可能会回顾一下我们的聊天内容，请不要输入您的银行卡密码啥的啊)
+  </p>
+
+  <div id="chat-container">
+    <div id="chat-window" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto;">
+      <p><strong>System:</strong> How can I help you today? (系统：我能为您做些什么呢？)</p>
+    </div>
+    <textarea id="user-input" placeholder="Type your message here..." style="width: 100%; height: 50px;"></textarea>
+    <button id="send-btn" style="margin-top: 10px;">Send (发送)</button>
+  </div>
+
+  <script>
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const chatLog = []; // 用于记录对话内容
+
+    sendBtn.addEventListener('click', async () => {
+      const userMessage = userInput.value.trim();
+      if (!userMessage) return;
+
+      // 显示用户输入
+      chatWindow.innerHTML += `<p><strong>You (你):</strong> ${userMessage}</p>`;
+      userInput.value = '';
+
+      try {
+        // 调用后端 API 中转服务器
+        const response = await fetch('/api/chat', { // '/api/chat' 是后端中转服务器的地址
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: userMessage }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API 调用失败，状态码：${response.status}`);
+        }
+
+        const data = await response.json();
+        const botMessage = data.choices[0]?.message?.content || "I'm sorry, I couldn't understand that. (抱歉，我无法理解您的意思。)";
+
+        // 显示助手回复
+        chatWindow.innerHTML += `<p><strong>Assistant (助手):</strong> ${botMessage}</p>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // 保存对话记录
+        chatLog.push({ user: userMessage, assistant: botMessage });
+        console.log(chatLog); // 可发送到后端保存
+      } catch (error) {
+        console.error('出现错误:', error);
+        chatWindow.innerHTML += `<p><strong>System (系统):</strong> An error occurred: ${error.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
+
